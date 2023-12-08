@@ -1,0 +1,29 @@
+#!api-testing
+# yaml-language-server: $schema=https://linuxsuren.github.io/api-testing/api-testing-schema.json
+name: env-hub
+api: |
+  {{default "http://localhost:8080" (env "SERVER")}}
+items:
+- name: health
+  request:
+    api: /health
+  expect:
+    body: ok
+
+## Cluster
+- name: createCluster-no-payload
+  request:
+    api: /v1/k3d/clusters
+    method: POST
+  expect:
+    statusCode: 400
+- name: createCluster
+  request:
+    api: /v1/clusters
+    method: POST
+    body: |
+      {
+        "name": "kind"
+      }
+  expect:
+    statusCode: 404
