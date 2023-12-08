@@ -175,6 +175,19 @@ func (c *k3dCluster) Get(name string) (result model.Cluster, err error) {
 	return
 }
 
+func (c *k3dCluster) Update(cluster model.Cluster) error {
+	ctx := context.Background()
+	cfg := &k3d.Cluster{
+		Name: cluster.Name,
+	}
+
+	simpleConfig := &k3dconf.SimpleConfig{
+		Servers: cluster.Servers,
+		Agents:  cluster.Agents,
+	}
+	return client.ClusterEditChangesetSimple(ctx, runtimes.SelectedRuntime, cfg, simpleConfig)
+}
+
 func (c *k3dCluster) Start(name string) error {
 	cfg := &k3d.Cluster{
 		Name: name,

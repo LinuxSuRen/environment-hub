@@ -23,6 +23,7 @@ type Provider interface {
 	List() ([]model.Cluster, error)
 	Delete(string) error
 	Get(string) (model.Cluster, error)
+	Update(model.Cluster) error
 	Start(string) error
 	Stop(string) error
 }
