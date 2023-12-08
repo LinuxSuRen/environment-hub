@@ -76,6 +76,10 @@ func (c *kindCluster) Get(name string) (result model.Cluster, err error) {
 	return
 }
 
+func (c *kindCluster) Update(model.Cluster) error {
+	return errors.New("not support yet")
+}
+
 func (c *kindCluster) Start(name string) error {
 	return errors.New("not support yet")
 }
