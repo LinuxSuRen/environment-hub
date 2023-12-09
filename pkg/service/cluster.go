@@ -72,9 +72,64 @@ func getCluster(c *gin.Context) {
 	}
 }
 
+func startCluster(c *gin.Context) {
+	kind := c.Param("kind")
+	name := c.Param("name")
+	pro := provider.GetProvider(kind)
+	if err := pro.Start(name); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		c.String(http.StatusOK, "ok")
+	}
+}
+
+func stopCluster(c *gin.Context) {
+	kind := c.Param("kind")
+	name := c.Param("name")
+	pro := provider.GetProvider(kind)
+	if err := pro.Stop(name); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		c.String(http.StatusOK, "ok")
+	}
+}
+
+func getClusterKubeconfig(c *gin.Context) {
+	// TODO add more supports according to the Accept header
+	// for instance, file download request
+	kind := c.Param("kind")
+	name := c.Param("name")
+	pro := provider.GetProvider(kind)
+	if cluster, err := pro.Get(name); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		c.String(http.StatusOK, cluster.KubeConfig)
+	}
+}
+
+func getClusterPortBinding(c *gin.Context) {
+	kind := c.Param("kind")
+	name := c.Param("name")
+	port := c.Query("port")
+	pro := provider.GetProvider(kind)
+	if cluster, err := pro.Get(name); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		if port == "" {
+			c.JSON(http.StatusOK, cluster.PortBinding)
+		} else {
+			c.String(http.StatusOK, cluster.PortBinding[port])
+		}
+	}
+}
+
 func init() {
 	RegisterHandler(listCluster, "/v1/:kind/clusters", http.MethodGet)
 	RegisterHandler(createCluster, "/v1/:kind/clusters", http.MethodPost)
 	RegisterHandler(deleteCluster, "/v1/:kind/clusters/:name", http.MethodDelete)
 	RegisterHandler(getCluster, "/v1/:kind/clusters/:name", http.MethodGet)
+	RegisterHandler(startCluster, "/v1/:kind/clusters/:name/start", http.MethodPut)
+	RegisterHandler(stopCluster, "/v1/:kind/clusters/:name/stop", http.MethodPut)
+	RegisterHandler(getClusterKubeconfig, "/v1/:kind/clusters/:name/kubeconfig", http.MethodGet)
+	RegisterHandler(getClusterPortBinding, "/v1/:kind/clusters/:name/portbinding", http.MethodGet)
 }

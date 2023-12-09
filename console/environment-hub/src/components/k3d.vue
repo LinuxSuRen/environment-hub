@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
-import { GetClusters, GetCluster, CreateClusters, DeleteCluster } from './api'
+import { GetClusters, GetCluster, CreateClusters, DeleteCluster, StartCluster, StopCluster } from './api'
 import { Codemirror } from 'vue-codemirror'
 
 interface Cluster {
@@ -28,6 +28,18 @@ function openClusterCreationDialog() {
 function createCluster() {
   creationDialogVisible.value = false
   CreateClusters(clusterForm, () => {
+    loadClusters()
+  })
+}
+
+function startCluster(name: string) {
+  StartCluster(name, (d) => {
+    loadClusters()
+  })
+}
+
+function stopCluster(name: string) {
+  StopCluster(name, (d) => {
     loadClusters()
   })
 }
@@ -81,6 +93,8 @@ function showClusterDetail(name: string) {
     <el-table-column fixed="right" label="Operations" width="120">
       <template #default="scope">
         <el-button link type="primary" size="small" @click="openClusterEditor(scope.row)">Edit</el-button>
+        <el-button link type="primary" size="small" @click="startCluster(scope.row.name)">Start</el-button>
+        <el-button link type="danger" size="small" @click="stopCluster(scope.row.name)">Stop</el-button>
         <el-button link type="danger" size="small" @click="deleteCluster(scope.row)">Delete</el-button>
       </template>
     </el-table-column>
