@@ -43,6 +43,26 @@ export function DeleteCluster(name: string, callback: (d: any) => void, errHandl
   .then(callback).catch(errHandle)
 }
 
+export function StartCluster(name: string, callback: (d: any) => void, errHandle?: (e: any) => void | null) {
+  const requestOptions = {
+    method: 'PUT'
+  }
+
+  fetch('/v1/k3d/clusters/' + name + '/start', requestOptions)
+  .then(DefaultResponseProcess)
+  .then(callback).catch(errHandle)
+}
+
+export function StopCluster(name: string, callback: (d: any) => void, errHandle?: (e: any) => void | null) {
+  const requestOptions = {
+    method: 'PUT'
+  }
+
+  fetch('/v1/k3d/clusters/' + name + '/stop', requestOptions)
+  .then(DefaultResponseProcess)
+  .then(callback).catch(errHandle)
+}
+
 export function GetKindClusters(callback: (d: any) => void, errHandle?: (e: any) => void | null) {
   fetch('/v1/kind/clusters')
   .then(DefaultResponseProcess)

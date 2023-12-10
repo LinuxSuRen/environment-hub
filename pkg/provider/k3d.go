@@ -193,7 +193,13 @@ func (c *k3dCluster) Start(name string) error {
 		Name: name,
 	}
 
-	return client.ClusterStart(context.Background(), runtimes.SelectedRuntime, cfg, k3d.ClusterStartOpts{})
+	ctx := context.Background()
+	cluser, err := client.ClusterGet(ctx, runtimes.SelectedRuntime, cfg)
+	if err != nil {
+		return err
+	}
+
+	return client.ClusterStart(ctx, runtimes.SelectedRuntime, cluser, k3d.ClusterStartOpts{})
 }
 
 func (c *k3dCluster) Stop(name string) error {
@@ -201,7 +207,13 @@ func (c *k3dCluster) Stop(name string) error {
 		Name: name,
 	}
 
-	return client.ClusterStop(context.Background(), runtimes.SelectedRuntime, cfg)
+	ctx := context.Background()
+	cluser, err := client.ClusterGet(ctx, runtimes.SelectedRuntime, cfg)
+	if err != nil {
+		return err
+	}
+
+	return client.ClusterStop(ctx, runtimes.SelectedRuntime, cluser)
 }
 
 func init() {
