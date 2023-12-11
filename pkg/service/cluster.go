@@ -18,6 +18,7 @@ package service
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/linuxsuren/environment-hub/pkg/model"
@@ -100,7 +101,11 @@ func getClusterKubeconfig(c *gin.Context) {
 	kind := c.Param("kind")
 	name := c.Param("name")
 	pro := provider.GetProvider(kind)
-	pro.WithServerAddress(c.Request.Host)
+	host := c.Request.Host
+	if index := strings.Index(host, ":"); index != -1 {
+		host = host[:index]
+	}
+	pro.WithServerAddress(host)
 	if cluster, err := pro.Get(name); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
