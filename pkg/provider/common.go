@@ -26,6 +26,9 @@ type Provider interface {
 	Update(model.Cluster) error
 	Start(string) error
 	Stop(string) error
+
+	// TODO having a better way to pass the server address
+	WithServerAddress(string)
 }
 
 var providers = make(map[string]Provider, 0)

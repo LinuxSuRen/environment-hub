@@ -1,0 +1,53 @@
+#!api-testing
+# yaml-language-server: $schema=https://linuxsuren.github.io/api-testing/api-testing-schema.json
+name: env-hub
+api: |
+  {{default "http://localhost:8080" (env "SERVER")}}
+param:
+  clusterName: "{{randAlpha 3}}"
+items:
+- name: health
+  request:
+    api: /health
+  expect:
+    body: ok
+
+## Cluster
+- name: createCluster
+  request:
+    api: /v1/k3d/clusters
+    method: POST
+    body: |
+      {
+        "name": "{{ .param.clusterName }}",
+        "servers": 1,
+        "agents": 1,
+        "port": 30000
+      }
+  expect:
+    bodyFieldsExpect:
+      status: ok
+- name: getCluster
+  request:
+    api: /v1/k3d/clusters/{{ .param.clusterName }}
+- name: getKubeconfig
+  request:
+    api: /v1/k3d/clusters/{{ .param.clusterName }}/kubeconfig
+- name: getPortbinding
+  request:
+    api: /v1/k3d/clusters/{{ .param.clusterName }}/portbinding
+  expect:
+    verify:
+      - int(data["30000"]) > 0
+- name: stopCluster
+  request:
+    api: /v1/k3d/clusters/{{ .param.clusterName }}/stop
+    method: PUT
+# - name: startCluster
+#   request:
+#     api: /v1/k3d/clusters/{{ .param.clusterName }}/start
+#     method: PUT
+- name: deleteCluster
+  request:
+    api: /v1/k3d/clusters/{{ .param.clusterName }}
+    method: DELETE

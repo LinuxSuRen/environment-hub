@@ -2,7 +2,7 @@ fmt:
 	go mod tidy
 	go fmt ./...
 build-ui:
-	cd console/environment-hub && npm run build-only
+	cd console/environment-hub && npm i && npm run build-only
 copy-embed-ui:
 	rm -rf cmd/data/assets
 	cp -r console/environment-hub/dist/* cmd/data

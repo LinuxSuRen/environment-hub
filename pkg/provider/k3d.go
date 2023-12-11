@@ -37,6 +37,7 @@ import (
 )
 
 type k3dCluster struct {
+	serverAddress string
 }
 
 func (c *k3dCluster) Create(cluster model.Cluster) (err error) {
@@ -150,9 +151,11 @@ func (c *k3dCluster) Get(name string) (result model.Cluster, err error) {
 	ctx := context.Background()
 	var cluster *k3d.Cluster
 	if cluster, err = client.ClusterGet(ctx, runtimes.SelectedRuntime, cfg); err == nil {
+		portBinding := getMappingPort(cluster)
+
 		result = model.Cluster{
 			Name:        cluster.Name,
-			PortBinding: getMappingPort(cluster),
+			PortBinding: portBinding,
 			Nodes:       convertToNode(cluster.Nodes),
 		}
 
@@ -162,6 +165,16 @@ func (c *k3dCluster) Get(name string) (result model.Cluster, err error) {
 
 			var config *clientcmdapi.Config
 			if config, err = client.KubeconfigGet(ctx, runtimes.SelectedRuntime, cluster); err == nil {
+				apiserverPort := portBinding["6443"]
+				if apiserverPort != "" && c.serverAddress != "" {
+					// provide an access endpoint from external
+					for k, v := range config.Clusters {
+						v.Server = fmt.Sprintf("https://%s:%s", c.serverAddress, apiserverPort)
+						v.InsecureSkipTLSVerify = true
+						config.Clusters[k] = v
+					}
+				}
+
 				if err = client.KubeconfigWrite(ctx, config, configFile.Name()); err == nil {
 					var data []byte
 					if data, err = os.ReadFile(configFile.Name()); err == nil {
@@ -214,6 +227,10 @@ func (c *k3dCluster) Stop(name string) error {
 	}
 
 	return client.ClusterStop(ctx, runtimes.SelectedRuntime, cluser)
+}
+
+func (c *k3dCluster) WithServerAddress(serverAddress string) {
+	c.serverAddress = serverAddress
 }
 
 func init() {

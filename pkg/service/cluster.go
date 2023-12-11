@@ -100,6 +100,7 @@ func getClusterKubeconfig(c *gin.Context) {
 	kind := c.Param("kind")
 	name := c.Param("name")
 	pro := provider.GetProvider(kind)
+	pro.WithServerAddress(c.Request.Host)
 	if cluster, err := pro.Get(name); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {

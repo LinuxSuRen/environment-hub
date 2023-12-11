@@ -24,6 +24,7 @@ import (
 )
 
 type kindCluster struct {
+	serverAddress string
 }
 
 func (c *kindCluster) Create(cluster model.Cluster) (err error) {
@@ -86,6 +87,10 @@ func (c *kindCluster) Start(name string) error {
 
 func (c *kindCluster) Stop(name string) error {
 	return errors.New("not support yet")
+}
+
+func (c *kindCluster) WithServerAddress(serverAddress string) {
+	c.serverAddress = serverAddress
 }
 
 func init() {

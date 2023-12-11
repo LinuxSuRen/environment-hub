@@ -4,14 +4,17 @@ services:
     build:
       context: .
     environment:
-      SERVER: http://server:8080
+      SERVER: http://envhub:8080
+      K3D: ${K3D}
     depends_on:
-      server:
+      envhub:
         condition: service_started
     links:
-      - server
-  server:
+      - envhub
+  envhub:
     image: ghcr.io/linuxsuren/environment-hub:master
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - ASSUME_NO_MOVING_GC_UNSAFE_RISK_IT_WITH=go1.21
     healthcheck:
