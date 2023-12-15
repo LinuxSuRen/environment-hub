@@ -98,19 +98,30 @@ func stopCluster(c *gin.Context) {
 func getClusterKubeconfig(c *gin.Context) {
 	// TODO add more supports according to the Accept header
 	// for instance, file download request
-	kind := c.Param("kind")
-	name := c.Param("name")
-	pro := provider.GetProvider(kind)
-	host := c.Request.Host
-	if index := strings.Index(host, ":"); index != -1 {
-		host = host[:index]
-	}
-	pro.WithServerAddress(host)
-	if cluster, err := pro.Get(name); err != nil {
+	if cluster, err := getClusterByName(c, true); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		c.String(http.StatusOK, cluster.KubeConfig)
 	}
+}
+
+func getClusterByName(c *gin.Context, changeHost bool) (cluster model.Cluster, err error) {
+	kind := c.Param("kind")
+	name := c.Param("name")
+	pro := provider.GetProvider(kind)
+
+	if changeHost {
+		host := c.Request.Host
+		if index := strings.Index(host, ":"); index != -1 {
+			host = host[:index]
+		}
+		pro.WithServerAddress(host)
+	} else {
+		pro.WithServerAddress("0.0.0.0")
+	}
+
+	cluster, err = pro.Get(name)
+	return
 }
 
 func getClusterPortBinding(c *gin.Context) {
