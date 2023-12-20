@@ -14,3 +14,5 @@ init-env:
 	curl https://linuxsuren.github.io/tools/install.sh|bash
 	hd i cli/cli
 	hd i k3d
+goreleaser:
+	goreleaser build --rm-dist --snapshot

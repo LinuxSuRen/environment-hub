@@ -4,3 +4,4 @@ cmd/data/assets/*.css
 cmd/data/favicon.ico
 .idea/
 bin/
+dist/
