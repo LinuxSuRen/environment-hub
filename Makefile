@@ -1,6 +1,8 @@
 fmt:
 	go mod tidy
 	go fmt ./...
+build: build-ui copy-embed-ui
+	go build -o bin/env-hub .
 build-ui:
 	cd console/environment-hub && npm i && npm run build-only
 copy-embed-ui:
@@ -16,3 +18,5 @@ init-env:
 	hd i k3d
 goreleaser:
 	goreleaser build --rm-dist --snapshot
+install: build
+	sudo install bin/env-hub /usr/local/bin

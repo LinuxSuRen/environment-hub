@@ -32,5 +32,4 @@ curl 'http://172.11.0.6:9090/v1/k3d/clusters/hello/portbinding?port=30000'
 ```shell
 curl http://localhost:9090/v1/k3d/clusters/test/install -XPOST \
   -d '{"name": "skywalking", "values": ["ui.image.tag=9.2.0", "oap.image.tag=9.2.0", "oap.storageType=elasticsearch"], "namespace": "default", "repoURL": "https://apache.jfrog.io/artifactory/skywalking-helm", "version": "4.3.0"}'
-
 ```

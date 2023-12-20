@@ -5,6 +5,8 @@ go 1.21.4
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/k3d-io/k3d/v5 v5.4.4
+	github.com/linuxsuren/go-fake-runtime v0.0.4
+	github.com/linuxsuren/go-service v0.0.0-20231225060426-efabcd3a5161
 	github.com/spf13/cobra v1.8.0
 	helm.sh/helm/v3 v3.8.2
 	k8s.io/client-go v0.23.5
@@ -153,7 +155,7 @@ require (
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
