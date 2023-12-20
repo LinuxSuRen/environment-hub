@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
-import { GetClusters, GetCluster, CreateClusters, DeleteCluster, StartCluster, StopCluster } from './api'
+import { GetClusters, GetCluster, CreateClusters, DeleteCluster, StartCluster, StopCluster, InstallHelm } from './api'
 import { Codemirror } from 'vue-codemirror'
 
 interface Cluster {
@@ -71,6 +71,30 @@ function showClusterDetail(name: string) {
     currentCluster.value = d
   })
 }
+
+const helmInstallDialog = ref(false)
+function openHelmInstallDialog(name: string) {
+  helmInstallDialog.value = true
+  GetCluster(name, (d) => {
+    currentCluster.value = d
+  })
+}
+const helmForm = reactive({
+  name: "",
+  namespace: "default",
+  repoURL: "",
+  version: "",
+  valuesStr: "",
+  values: [""]
+})
+function installHelmChart() {
+  const items = helmForm.valuesStr.split(",")
+  for (var i=0;i<items.length;i++) {
+    helmForm.values[i]=items[i]
+  }
+  InstallHelm(currentCluster.value.name, helmForm, (d) => {
+  })
+}
 </script>
 
 <template>
@@ -92,6 +116,7 @@ function showClusterDetail(name: string) {
     </el-table-column>
     <el-table-column fixed="right" label="Operations" width="120">
       <template #default="scope">
+        <el-button link type="primary" size="small" @click="openHelmInstallDialog(scope.row.name)">Install</el-button>
         <el-button link type="primary" size="small" @click="openClusterEditor(scope.row)">Edit</el-button>
         <el-button link type="primary" size="small" @click="startCluster(scope.row.name)">Start</el-button>
         <el-button link type="danger" size="small" @click="stopCluster(scope.row.name)">Stop</el-button>
@@ -138,5 +163,36 @@ function showClusterDetail(name: string) {
       <el-table-column prop="role" label="Role"/>
       <el-table-column prop="status" label="Status"/>
     </el-table>
+  </el-drawer>
+
+  <el-drawer
+    v-model="helmInstallDialog"
+    :title="currentCluster.name"
+    size="80%"
+  >
+    <el-form :model="helmForm">
+        <el-form-item label="Namespace">
+          <el-input v-model="helmForm.namespace" />
+        </el-form-item>
+        <el-form-item label="Name">
+          <el-input v-model="helmForm.name" />
+        </el-form-item>
+        <el-form-item label="URL">
+          <el-input v-model="helmForm.repoURL" />
+        </el-form-item>
+        <el-form-item label="Version">
+          <el-input v-model="helmForm.version" />
+        </el-form-item>
+        <el-form-item label="Values">
+          <el-input v-model="helmForm.valuesStr" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="installHelmChart">
+            Confirm
+          </el-button>
+        </span>
+      </template>
   </el-drawer>
 </template>

@@ -63,6 +63,17 @@ export function StopCluster(name: string, callback: (d: any) => void, errHandle?
   .then(callback).catch(errHandle)
 }
 
+export function InstallHelm(name: string, data: any, callback: (d: any) => void, errHandle?: (e: any) => void | null) {
+  const requestOptions = {
+    method: 'POST',
+    body: JSON.stringify(data)
+  }
+
+  fetch('/v1/k3d/clusters/' + name + '/install', requestOptions)
+  .then(DefaultResponseProcess)
+  .then(callback).catch(errHandle)
+}
+
 export function GetKindClusters(callback: (d: any) => void, errHandle?: (e: any) => void | null) {
   fetch('/v1/kind/clusters')
   .then(DefaultResponseProcess)

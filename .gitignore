@@ -2,3 +2,5 @@ cmd/data/index.html
 cmd/data/assets/*.js
 cmd/data/assets/*.css
 cmd/data/favicon.ico
+.idea/
+bin/

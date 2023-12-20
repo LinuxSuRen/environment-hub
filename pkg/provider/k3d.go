@@ -18,8 +18,10 @@ package provider
 
 import (
 	"context"
+	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"fmt"
 
@@ -41,6 +43,22 @@ type k3dCluster struct {
 }
 
 func (c *k3dCluster) Create(cluster model.Cluster) (err error) {
+	ctx := context.Background()
+
+	if _, err = client.RegistryGet(ctx, runtimes.SelectedRuntime, "default"); err != nil {
+		log.Println(err)
+		if strings.Contains(err.Error(), "Failed to find registry") {
+			reg := &k3d.Registry{
+				Host:  "default",
+				Image: "docker.io/library/registry:2",
+			}
+			if _, err = client.RegistryCreate(ctx, runtimes.SelectedRuntime, reg); err != nil {
+				err = fmt.Errorf("failed to create registry: %w", err)
+				return
+			}
+		}
+	}
+
 	cfg := k3dconf.SimpleConfig{
 		TypeMeta: k3dtypes.TypeMeta{
 			APIVersion: config.DefaultConfigApiVersion,
@@ -51,7 +69,9 @@ func (c *k3dCluster) Create(cluster model.Cluster) (err error) {
 		},
 		Servers: cluster.Servers,
 		Agents:  cluster.Agents,
-		// ClusterToken: p.Token,
+		Registries: k3dconf.SimpleConfigRegistries{
+			Use: []string{"default"},
+		},
 		Image: fmt.Sprintf("%s:%s", k3d.DefaultK3sImageRepo, k3dversion.K3sVersion),
 		// ExposeAPI: k3dconf.SimpleExposureOpts{
 		// 	HostIP:   ipPorts[0],
@@ -75,9 +95,9 @@ func (c *k3dCluster) Create(cluster model.Cluster) (err error) {
 		}}
 	}
 
-	cc, err := config.TransformSimpleToClusterConfig(context.Background(), runtimes.SelectedRuntime, cfg)
+	cc, err := config.TransformSimpleToClusterConfig(ctx, runtimes.SelectedRuntime, cfg)
 	if err == nil {
-		err = client.ClusterRun(context.Background(), runtimes.SelectedRuntime, cc)
+		err = client.ClusterRun(ctx, runtimes.SelectedRuntime, cc)
 	}
 	return
 }
@@ -170,7 +190,7 @@ func (c *k3dCluster) Get(name string) (result model.Cluster, err error) {
 					// provide an access endpoint from external
 					for k, v := range config.Clusters {
 						v.Server = fmt.Sprintf("https://%s:%s", c.serverAddress, apiserverPort)
-						v.InsecureSkipTLSVerify = true
+						//v.InsecureSkipTLSVerify = true
 						config.Clusters[k] = v
 					}
 				}
