@@ -18,74 +18,17 @@ package cmd
 
 import (
 	_ "embed"
-	"log"
-	"net/http"
-	"strings"
 
-	"github.com/gin-gonic/gin"
-	"github.com/linuxsuren/environment-hub/pkg/service"
 	"github.com/spf13/cobra"
 )
 
-type option struct {
-	address string
-}
+const envHubDescription = "Environment setup platform"
 
 func NewRoot() (c *cobra.Command) {
-	o := &option{}
 	c = &cobra.Command{
 		Use:   "env-hub",
-		Short: "Environment setup platform",
-		RunE:  o.runE,
+		Short: envHubDescription,
 	}
-	flags := c.Flags()
-	flags.StringVarP(&o.address, "address", "", "0.0.0.0:8080", "The listen address")
+	c.AddCommand(newServerCmd(), newServiceCmd())
 	return
 }
-
-func (o *option) runE(c *cobra.Command, args []string) (err error) {
-	r := gin.Default()
-
-	handlers := service.GetAllHandlers()
-	for _, handler := range handlers {
-		switch method := handler.Method; method {
-		case http.MethodGet:
-			r.GET(handler.Path, handler.Process)
-		case http.MethodPost:
-			r.POST(handler.Path, handler.Process)
-		case http.MethodPut:
-			r.PUT(handler.Path, handler.Process)
-		case http.MethodDelete:
-			r.DELETE(handler.Path, handler.Process)
-		default:
-			log.Println("unknown handler method:", method, "path:", handler.Path)
-		}
-	}
-
-	r.GET("", func(c *gin.Context) {
-		c.Header("content-type", "text/html;charset=utf-8")
-		c.String(http.StatusOK, staticIndex)
-	})
-	r.GET("/assets/:file", func(c *gin.Context) {
-		file := c.Param("file")
-
-		if strings.HasSuffix(file, ".js") {
-			c.Header("content-type", "application/javascript")
-			c.String(http.StatusOK, staticJs)
-		} else if strings.HasSuffix(file, ".css") {
-			c.Header("content-type", "text/css; charset=utf-8")
-			c.String(http.StatusOK, staticCss)
-		}
-	})
-	r.Run(o.address)
-	return
-}
-
-//go:embed data/index.html
-var staticIndex string
-
-//go:embed data/assets/*.js
-var staticJs string
-
-//go:embed data/assets/*.css
-var staticCss string

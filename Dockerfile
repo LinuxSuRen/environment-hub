@@ -15,6 +15,6 @@ RUN go build -o env-hub .
 FROM alpine:3.18.5
 LABEL org.opencontainers.image.source https://github.com/LinuxSuRen/environment-hub
 WORKDIR /workspace
-COPY --from=server /workspace/env-hub .
+COPY --from=server /workspace/env-hub /usr/local/bin
 ENV ASSUME_NO_MOVING_GC_UNSAFE_RISK_IT_WITH=go1.21
-CMD [ "/workspace/env-hub" ]
+CMD [ "env-hub", "server" ]

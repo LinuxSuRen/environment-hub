@@ -28,3 +28,9 @@ jobs:
           sudo curl -L https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
           sudo chmod u+x /usr/local/bin/docker-compose
           make test-e2e
+      - name: Test System Service
+        run: |
+          make install
+          sudo env-hub service install
+          sudo env-hub service start
+          curl http://localhost:8080/health
